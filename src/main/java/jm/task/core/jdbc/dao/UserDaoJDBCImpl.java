@@ -19,7 +19,7 @@ public class UserDaoJDBCImpl implements UserDao {
         }
     }
 
-    public UserDaoJDBCImpl() throws SQLException {
+    public UserDaoJDBCImpl() {
     }
 
     public void createUsersTable() throws SQLException {
@@ -29,38 +29,30 @@ public class UserDaoJDBCImpl implements UserDao {
                 "lastName varchar(50), " +
                 "age int, " +
                 "primary key (id))";
-        try (Statement statement = connection.createStatement()) {
-            connection.setAutoCommit(false);
-            statement.executeUpdate(SQL_CREATE);
+        try (PreparedStatement preparedStatement =
+                     connection.prepareStatement(SQL_CREATE)) {
+            preparedStatement.executeUpdate();
             connection.commit();
         } catch (SQLException e) {
             e.getStackTrace();
             connection.rollback();
-        } finally {
-            connection.setAutoCommit(true);
         }
-
-
     }
 
     public void dropUsersTable() throws SQLException {
         String SQL_DROP = "DROP TABLE IF EXISTS Users";
         try (Statement statement = connection.createStatement()) {
-            connection.setAutoCommit(false);
             statement.executeUpdate(SQL_DROP);
             connection.commit();
         } catch (SQLException e) {
             e.getStackTrace();
             connection.rollback();
-        } finally {
-            connection.setAutoCommit(true);
         }
     }
 
     public void saveUser(String name, String lastName, byte age) throws SQLException {
         try (PreparedStatement preparedStatement =
                      connection.prepareStatement("INSERT INTO Users(name, lastName, age) VALUES(?, ?, ?)")){
-            connection.setAutoCommit(false);
             preparedStatement.setString(1, name);
             preparedStatement.setString(2, lastName);
             preparedStatement.setInt(3, age);
@@ -70,23 +62,19 @@ public class UserDaoJDBCImpl implements UserDao {
         } catch (SQLException e) {
             e.getStackTrace();
             connection.rollback();
-        } finally {
-            connection.setAutoCommit(true);
         }
     }
 
     public void removeUserById(long id) throws SQLException {
+        String SQL = "DELETE FROM Users WHERE id = ?";
         try (PreparedStatement preparedStatement =
-                     connection.prepareStatement("DELETE FROM Users WHERE id = ?")) {
-            connection.setAutoCommit(false);
+                     connection.prepareStatement(SQL)) {
             preparedStatement.setLong(1, id);
             preparedStatement.executeUpdate();
             connection.commit();
         } catch (SQLException e) {
             e.getStackTrace();
             connection.rollback();
-        } finally {
-            connection.setAutoCommit(true);
         }
     }
 
@@ -95,9 +83,9 @@ public class UserDaoJDBCImpl implements UserDao {
         List<User> users = new ArrayList<>();
         String SQL = "SELECT * FROM Users";
 
-        try (Statement statement = connection.createStatement()) {
-            connection.setAutoCommit(false);
-            ResultSet resultSet = statement.executeQuery(SQL);
+        try (PreparedStatement preparedStatement =
+                     connection.prepareStatement(SQL)) {
+            ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
                 User user = new User();
@@ -107,29 +95,23 @@ public class UserDaoJDBCImpl implements UserDao {
                 user.setAge((byte) resultSet.getInt("age"));
                 users.add(user);
             }
-
             connection.commit();
         } catch (SQLException e) {
             e.getStackTrace();
             connection.rollback();
-        } finally {
-            connection.setAutoCommit(true);
         }
-
         return users;
     }
 
     public void cleanUsersTable() throws SQLException {
         String SQL_CLEAR = "TRUNCATE TABLE Users";
-        try (Statement statement = connection.createStatement()) {
-            connection.setAutoCommit(false);
-            statement.executeUpdate(SQL_CLEAR);
+        try (PreparedStatement preparedStatement =
+                     connection.prepareStatement(SQL_CLEAR)) {
+            preparedStatement.executeUpdate();
             connection.commit();
         } catch (SQLException e) {
             e.getStackTrace();
             connection.rollback();
-        } finally {
-            connection.setAutoCommit(true);
         }
     }
 }
