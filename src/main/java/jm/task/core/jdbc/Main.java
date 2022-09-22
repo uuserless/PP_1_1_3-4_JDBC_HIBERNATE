@@ -1,17 +1,27 @@
 package jm.task.core.jdbc;
-import jm.task.core.jdbc.model.User;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
+import jm.task.core.jdbc.service.UserService;
+import jm.task.core.jdbc.service.UserServiceImpl;
+
+import java.sql.SQLException;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        User user1 = new User("name1","lastName1",(byte) 18);
-        User user2 = new User("name2","lastName2",(byte) 28);
-        User user3 = new User("name3","lastName3",(byte) 20);
-        User user4 = new User("name4","lastName4",(byte) 35);
+        UserService userService = new UserServiceImpl();
 
+        try {
+            userService.createUsersTable();
+            userService.saveUser("name1","lastName1",(byte) 18);
+            userService.saveUser("name2","lastName2",(byte) 28);
+            userService.saveUser("name3","lastName3",(byte) 20);
+            userService.saveUser("name4","lastName4",(byte) 35);
+            userService.getAllUsers().forEach(System.out::println);
+            userService.cleanUsersTable();
+            userService.dropUsersTable();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

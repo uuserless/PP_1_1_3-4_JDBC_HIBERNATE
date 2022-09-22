@@ -10,14 +10,10 @@ import java.util.List;
 
 public class UserServiceImpl implements UserService {
 
-    private UserDao userDaoJDBC;
+    private final UserDao userDaoJDBC;
 
     {
-        try {
-            userDaoJDBC = new UserDaoJDBCImpl();
-        } catch (SQLException e) {
-            e.getStackTrace();
-        }
+        userDaoJDBC = new UserDaoHibernateImpl();
     }
 
     public UserServiceImpl() {
